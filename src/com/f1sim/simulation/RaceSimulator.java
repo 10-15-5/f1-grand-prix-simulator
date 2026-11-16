@@ -20,22 +20,69 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Predicate;
 
+/**
+ * Simulates Grand Prix races and calculates race results.
+ *
+ * Calculates lap times using driver skill, car performance,
+ * tyre characteristics and random variation. Generates race events,
+ * tracks total race times and produces the final driver standings.
+ *
+ * Implements the Raceable and Scorable interfaces.
+ */
 public class RaceSimulator implements Raceable, Scorable {
     private final Random random;
 
+
+    /**
+     * Creates a race simulator using a randomly generated seed.
+     *
+     * Initialises the Random object used to introduce variation
+     * into lap times and generate random race events.
+     */
     public RaceSimulator() {
         this(new Random());
     }
 
-    // Overloaded constructor makes tests/reproducible runs possible with a fixed seed.
+
+    /**
+     * Creates a race simulator using a specified random seed.
+     *
+     * Allows repeatable simulation results by using the same seed
+     * when generating random numbers.
+     *
+     * @param seed the seed used to initialise the Random object
+     */
     public RaceSimulator(long seed) {
         this(new Random(seed));
     }
 
+
+    /**
+     * Initialises the race simulator with the supplied Random object.
+     *
+     * Used internally by the other constructors to initialise
+     * the random number generator.
+     *
+     * @param random the Random object used for simulation randomness
+     */
     private RaceSimulator(Random random) {
         this.random = random;
     }
 
+
+    /**
+     * Calculates the lap time for a driver based on their performance
+     * and the characteristics of their car and selected tyre compound.
+     *
+     * Takes into account driver skill, car speed, tyre pace bonus,
+     * tyre degradation and random variation.
+     *
+     * @param driver the driver completing the lap
+     * @param lapNumber the current lap number
+     * @return the calculated lap time in seconds
+     * @throws IllegalStateException if the race teams have not been set
+     * @throws IllegalArgumentException if the driver's team cannot be found
+     */
     @Override
     public double calculateLapTime(Driver driver, int lapNumber) {
         Team team = findTeamForDriver(driver);
@@ -52,6 +99,19 @@ public class RaceSimulator implements Raceable, Scorable {
         return base - skillEffect - carEffect - tyreEffect + degradation + randomVariation;
     }
 
+
+    /**
+     * Runs a race using the teams supplied in the Race object.
+     *
+     * Temporarily stores the active teams so that other simulation
+     * methods can access each driver's team and car information.
+     * Ensures the active team reference is cleared after the race,
+     * even if an exception occurs.
+     *
+     * @param race the race to be simulated
+     * @return the completed race results
+     * @throws InterruptedException if the race simulation is interrupted
+     */
     public RaceResult runRace(Race race) throws InterruptedException {
         this.activeTeams = race.getTeams();
         try {
@@ -61,6 +121,20 @@ public class RaceSimulator implements Raceable, Scorable {
         }
     }
 
+
+    /**
+     * Simulates the individual laps of a race and calculates the final standings.
+     *
+     * Collects all eligible drivers, calculates their lap times, generates
+     * random race events and sums their total race times.
+     * Drivers are then sorted by their total times and awarded
+     * points according to their finishing positions.
+     *
+     * @param race the race being simulated
+     * @return a RaceResult containing the final standings and race events
+     * @throws InterruptedException if the simulation is interrupted
+     * @throws IllegalStateException if there are no eligible drivers
+     */
     private RaceResult simulateRace(Race race) throws InterruptedException {
         List<Driver> drivers = new ArrayList<>();
 
@@ -100,6 +174,7 @@ public class RaceSimulator implements Raceable, Scorable {
                     lapTime = event.adjustLapTime(lapTime);
                     System.out.println(event.toString());
                     allEvents.add(event);
+                    // Sleep for 1.5seconds so user can read events
                     Thread.sleep(1500);
                 }
 
@@ -132,6 +207,18 @@ public class RaceSimulator implements Raceable, Scorable {
         );
     }
 
+
+    /**
+     * Randomly determines whether a race event occurs for a driver.
+     *
+     * Generates a random number to determine whether the driver
+     * experiences a mechanical failure, safety car, overtake,
+     * fastest lap or no event.
+     *
+     * @param lap the current lap number
+     * @param driver the driver being checked for a race event
+     * @return the generated RaceEvent, oif any
+     */
     private RaceEvent maybeCreateEvent(int lap, Driver driver) {
         int roll = random.nextInt(100);
         if (roll < 5) return new MechanicalFailureEvent(lap, driver.getName());
@@ -141,9 +228,19 @@ public class RaceSimulator implements Raceable, Scorable {
         return null;
     }
 
+
+    /**
+     * Finds the team that a driver belongs to.
+     *
+     * Searches the active race teams using the driver's team name
+     * and returns the matching Team object.
+     *
+     * @param driver the driver whose team needs to be located
+     * @return the Team object associated with the driver
+     * @throws IllegalStateException if the active race teams have not been set
+     * @throws IllegalArgumentException if the driver's team cannot be found
+     */
     private Team findTeamForDriver(Driver driver) {
-        // The team name is stored on each driver; the simulator's team car is located by name.
-        // A temporary lookup is populated from the active race in the overload below.
         if (activeTeams == null) {
             throw new IllegalStateException("Race teams have not been set.");
         }
@@ -155,6 +252,17 @@ public class RaceSimulator implements Raceable, Scorable {
 
     private List<Team> activeTeams;
 
+
+    /**
+     * Determines the championship points awarded for a finishing position.
+     *
+     * Uses a switch expression to assign points based on the driver's
+     * final race position. Drivers finishing outside the top ten
+     * receive zero points.
+     *
+     * @param position the driver's finishing position
+     * @return the championship points awarded
+     */
     @Override
     public int pointsForPosition(int position) {
         return switch (position) {

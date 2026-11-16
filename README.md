@@ -57,8 +57,6 @@ f1-grand-prix-simulator/
 
 ## 🚀 Running the Application
 
-Ensure you have Java installed and available in your terminal.
-
 Clone the repository:
 
 ```bash

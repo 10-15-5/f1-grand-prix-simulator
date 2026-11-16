@@ -6,24 +6,35 @@ import java.util.Locale;
 public final class RaceTime implements Comparable<RaceTime> {
     private final double seconds;
 
+
     public RaceTime(double seconds) {
         if (!Double.isFinite(seconds) || seconds < 0) {
-            throw new IllegalArgumentException("Race time must be a non-negative finite number.");
+            throw new IllegalArgumentException("Race time must be a non-negative number.");
         }
         this.seconds = seconds;
     }
 
+
     public double toSeconds() { return seconds; }
+
 
     public RaceTime plus(RaceTime other) {
         return new RaceTime(this.seconds + other.seconds);
     }
+
 
     @Override
     public int compareTo(RaceTime other) {
         return Double.compare(this.seconds, other.seconds);
     }
 
+
+    /**
+     * Converts the race time into a formatted minutes-and-seconds string.
+     * The seconds portion is displayed to three decimal places.
+     *
+     * @return the formatted race time, for example "1:24.567"
+     */
     @Override
     public String toString() {
         int minutes = (int) (seconds / 60);
