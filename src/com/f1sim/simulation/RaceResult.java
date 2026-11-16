@@ -4,6 +4,7 @@ import com.f1sim.events.RaceEvent;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public final class RaceResult {
@@ -17,7 +18,9 @@ public final class RaceResult {
         this.raceName = raceName;
         this.raceDate = raceDate;
         this.standings = List.copyOf(standings);
-        this.events = List.copyOf(events);
+        this.events = events.stream()
+            .sorted(Comparator.comparingInt(RaceEvent::getLapNumber))
+            .toList();
     }
 
     public String getRaceName() { return raceName; }

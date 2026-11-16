@@ -17,7 +17,7 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         try (Scanner scanner = new Scanner(System.in)) {
             List<Team> teams = createTeams();
             List<Driver> drivers = getAllDrivers(teams);
@@ -152,8 +152,8 @@ public class Main {
             }
         }
         System.out.println("------------------------------------------------");
-        System.out.println("Race events:");
-        System.out.print(RaceReport.formatEvents(result.getEvents().toArray(
-                com.f1sim.events.RaceEvent[]::new)));
+        // System.out.println("Race events:");
+        // System.out.print(RaceReport.formatEvents(result.getEvents().toArray(
+        //         com.f1sim.events.RaceEvent[]::new)));
     }
 }

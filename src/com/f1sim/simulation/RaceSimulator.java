@@ -14,7 +14,9 @@ import com.f1sim.models.Team;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.Predicate;
 
@@ -50,7 +52,7 @@ public class RaceSimulator implements Raceable, Scorable {
         return base - skillEffect - carEffect - tyreEffect + degradation + randomVariation;
     }
 
-    public RaceResult runRace(Race race) {
+    public RaceResult runRace(Race race) throws InterruptedException {
         this.activeTeams = race.getTeams();
         try {
             return simulateRace(race);
@@ -59,58 +61,75 @@ public class RaceSimulator implements Raceable, Scorable {
         }
     }
 
-    private RaceResult simulateRace(Race race) {
+    private RaceResult simulateRace(Race race) throws InterruptedException {
         List<Driver> drivers = new ArrayList<>();
+
         for (Team team : race.getTeams()) {
             drivers.addAll(team.getDrivers());
         }
 
-        // Predicate lambda: only drivers with a valid skill score take part.
-        Predicate<Driver> eligibleDriver = driver -> driver.getSkillRating() >= 1;
+        Predicate<Driver> eligibleDriver =
+                driver -> driver.getSkillRating() >= 1;
+
         drivers.removeIf(eligibleDriver.negate());
 
         if (drivers.isEmpty()) {
             throw new IllegalStateException("There are no eligible drivers.");
         }
 
-        List<DriverStanding> standings = new ArrayList<>();
+        Map<Driver, Double> totalTimes = new HashMap<>();
         List<RaceEvent> allEvents = new ArrayList<>();
 
+        // Initialise every driver's race time.
         for (Driver driver : drivers) {
-            double totalSeconds = 0;
-            double fastestLap = Double.MAX_VALUE;
+            totalTimes.put(driver, 0.0);
+        }
 
-            for (int lap = 1; lap <= race.getNumberOfLaps(); lap++) {
-                double lapSeconds = calculateLapTime(driver, lap);
+        // Process the race one lap at a time.
+        for (int lap = 1; lap <= race.getNumberOfLaps(); lap++) {
+
+            System.out.println("\n--- LAP " + lap + " ---");
+
+            for (Driver driver : drivers) {
+
+                double lapTime = calculateLapTime(driver, lap);
+
                 RaceEvent event = maybeCreateEvent(lap, driver);
 
                 if (event != null) {
-                    lapSeconds = event.adjustLapTime(lapSeconds);
+                    lapTime = event.adjustLapTime(lapTime);
+                    System.out.println(event.describe());
                     allEvents.add(event);
+                    Thread.sleep(1500);
                 }
 
-                totalSeconds += lapSeconds;
-                fastestLap = Math.min(fastestLap, lapSeconds);
+                totalTimes.merge(driver, lapTime, Double::sum);
             }
-
-            standings.add(new DriverStanding(driver, new RaceTime(totalSeconds), 0, false));
         }
 
-        // Method reference sorts by total race time (fastest first).
-        standings.sort(Comparator.comparingDouble(
-                (DriverStanding standing) -> standing.totalTime().toSeconds()));
+        // Sort drivers by their total race time.
+        drivers.sort(Comparator.comparingDouble(totalTimes::get));
 
-        // Switch expression demonstrates modern switch syntax.
-        List<DriverStanding> scored = new ArrayList<>();
-        for (int i = 0; i < standings.size(); i++) {
-            DriverStanding standing = standings.get(i);
-            int position = i + 1;
-            int points = pointsForPosition(position);
-            boolean fastestLapFlag = false; // Fastest lap event is reported separately.
-            scored.add(new DriverStanding(standing.driver(), standing.totalTime(), points, fastestLapFlag));
+        List<DriverStanding> standings = new ArrayList<>();
+
+        for (int i = 0; i < drivers.size(); i++) {
+            Driver driver = drivers.get(i);
+            int points = pointsForPosition(i + 1);
+
+            standings.add(new DriverStanding(
+                    driver,
+                    new RaceTime(totalTimes.get(driver)),
+                    points,
+                    false
+            ));
         }
 
-        return new RaceResult(race.getName(), race.getRaceDate(), scored, allEvents);
+        return new RaceResult(
+                race.getName(),
+                race.getRaceDate(),
+                standings,
+                allEvents
+        );
     }
 
     private RaceEvent maybeCreateEvent(int lap, Driver driver) {
