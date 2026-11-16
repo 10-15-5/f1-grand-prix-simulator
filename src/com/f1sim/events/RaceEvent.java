@@ -17,4 +17,9 @@ public sealed abstract class RaceEvent
     public abstract String describe();
 
     public abstract double adjustLapTime(double lapTimeSeconds);
+
+    @Override
+    public String toString() {
+        return describe();
+    }
 }

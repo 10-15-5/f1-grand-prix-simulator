@@ -98,7 +98,7 @@ public class RaceSimulator implements Raceable, Scorable {
 
                 if (event != null) {
                     lapTime = event.adjustLapTime(lapTime);
-                    System.out.println(event.describe());
+                    System.out.println(event.toString());
                     allEvents.add(event);
                     Thread.sleep(1500);
                 }
