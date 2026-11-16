@@ -178,6 +178,15 @@ public class RaceSimulator implements Raceable, Scorable {
                     Thread.sleep(1500);
                 }
 
+                if (lapTime < 95) {
+                    // Display the driver's lap time and performance classification.
+                    System.out.printf("- %s's lap %d time - %.2f seconds - %s%n",
+                            driver.getName(),
+                            lap,
+                            lapTime,
+                            LapTimeClassifier.classify(lapTime));
+                } 
+
                 totalTimes.merge(driver, lapTime, Double::sum);
             }
         }

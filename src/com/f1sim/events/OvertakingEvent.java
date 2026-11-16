@@ -25,7 +25,7 @@ public final class OvertakingEvent extends RaceEvent {
      */
     @Override
     public String describe() {
-        return super.getDriverName() + " makes an overtake on lap " + super.getLapNumber() + ".";
+        return super.getDriverName() + " overtakes on lap " + super.getLapNumber() + ".";
     }
 
     
