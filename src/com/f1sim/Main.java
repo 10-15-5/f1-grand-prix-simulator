@@ -5,6 +5,7 @@ import com.f1sim.models.Driver;
 import com.f1sim.models.Team;
 import com.f1sim.simulation.Championship;
 import com.f1sim.simulation.Race;
+import com.f1sim.simulation.RaceCar;
 import com.f1sim.simulation.RaceResult;
 import com.f1sim.simulation.RaceSetupException;
 import com.f1sim.simulation.RaceSimulator;
@@ -35,6 +36,8 @@ public class Main {
             List<Driver> drivers = getAllDrivers(teams);
             Championship championship = new Championship("OOP1 Grand Prix Championship");
             RaceSimulator simulator = new RaceSimulator();
+
+            RaceCar.display();
 
             System.out.println("=================================");
             System.out.println("       F1 GRAND PRIX SIMULATOR");
