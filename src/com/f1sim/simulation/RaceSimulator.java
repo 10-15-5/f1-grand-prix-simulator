@@ -172,7 +172,7 @@ public class RaceSimulator implements Raceable, Scorable {
 
                 if (event != null) {
                     lapTime = event.adjustLapTime(lapTime);
-                    System.out.println(event.toString());
+                    System.out.print(RaceReport.formatEvents(event));
                     allEvents.add(event);
                     // Sleep for 1.5seconds so user can read events
                     Thread.sleep(1500);
@@ -211,20 +211,35 @@ public class RaceSimulator implements Raceable, Scorable {
     /**
      * Randomly determines whether a race event occurs for a driver.
      *
-     * Generates a random number to determine whether the driver
-     * experiences a mechanical failure, safety car, overtake,
-     * fastest lap or no event.
+     * Mechanical failure probability is influenced by the reliability
+     * rating of the driver's car. Other events use fixed probabilities.
      *
      * @param lap the current lap number
      * @param driver the driver being checked for a race event
-     * @return the generated RaceEvent, oif any
+     * @return the generated RaceEvent, or null if no event occurs
      */
     private RaceEvent maybeCreateEvent(int lap, Driver driver) {
+
+        int reliability = findTeamForDriver(driver)
+            .getCar()
+            .getReliabilityRating();
+
+        // Calculate mechanical failure probability.
+        // chatgpt created this formula for me
+        double failureChance = 1.0 + (100 - reliability) * 0.2;
+
+        // Check whether a mechanical failure occurs.
+        if (random.nextDouble() * 100 < failureChance) {
+            return new MechanicalFailureEvent(lap, driver.getName());
+        }
+
+        // Check for other race events.
         int roll = random.nextInt(100);
-        if (roll < 5) return new MechanicalFailureEvent(lap, driver.getName());
-        if (roll < 10) return new SafetyCarEvent(lap, driver.getName());
-        if (roll < 22) return new OvertakingEvent(lap, driver.getName());
-        if (roll < 25) return new FastestLapEvent(lap, driver.getName());
+
+        if (roll < 5) return new SafetyCarEvent(lap, driver.getName());
+        if (roll < 17) return new OvertakingEvent(lap, driver.getName());
+        if (roll < 20) return new FastestLapEvent(lap, driver.getName());
+
         return null;
     }
 

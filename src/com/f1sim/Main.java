@@ -223,8 +223,5 @@ public class Main {
             }
         }
         System.out.println("------------------------------------------------");
-        // System.out.println("Race events:");
-        // System.out.print(RaceReport.formatEvents(result.getEvents().toArray(
-        //         com.f1sim.events.RaceEvent[]::new)));
     }
 }
