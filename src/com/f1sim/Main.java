@@ -79,7 +79,34 @@ public class Main {
                 }
             }
 
-            System.out.println("\nThanks for racing!");
+        int finalPosition = championship.getDriverPosition(selectedDriver);
+
+        System.out.println("\n=================================");
+        System.out.println("  FINAL CHAMPIONSHIP RESULT");
+        System.out.println("=================================");
+
+        String suffix = switch (finalPosition) {
+            case 1 -> "st";
+            case 2 -> "nd";
+            case 3 -> "rd";
+            default -> "th";
+        };
+
+        if (finalPosition == 1) {
+            System.out.println("WORLD CHAMPION! Congratulations, "
+                    + selectedDriver.getName() + "!");
+        } else if (finalPosition <= 3 && finalPosition > 0) {
+            System.out.println("Congratulations! " + selectedDriver.getName()
+                    + " finished " + finalPosition + suffix + " in the championship!");
+        } else if (finalPosition > 0) {
+            System.out.println("Unfortunately, " + selectedDriver.getName()
+                    + " finished " + finalPosition + suffix
+                    + " in the championship. Better luck next season!");
+        } else {
+            System.out.println("Your driver did not score any championship points.");
+        }
+
+        System.out.println("\nThanks for racing!");
         } catch (RaceSetupException exception) {
             System.out.println("Unable to start the race: " + exception.getMessage());
         }

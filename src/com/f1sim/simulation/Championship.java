@@ -2,8 +2,10 @@ package com.f1sim.simulation;
 
 import com.f1sim.models.Driver;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,5 +60,26 @@ public class Championship {
                 .sorted(Map.Entry.<Driver, Integer>comparingByValue(Comparator.reverseOrder()))
                 .forEach(entry -> System.out.printf("%-18s %3d points%n",
                         entry.getKey().getName(), entry.getValue()));
+    }
+
+    /**
+     * Gets a driver's final position in the championship standings.
+     *
+     * @param driver the driver whose position is being checked
+     * @return the driver's championship position, or -1 if not found
+     */
+    public int getDriverPosition(Driver driver) {
+        List<Map.Entry<Driver, Integer>> standings = new ArrayList<>(pointsTable.entrySet());
+
+        standings.sort(Map.Entry.<Driver, Integer>comparingByValue(
+                Comparator.reverseOrder()));
+
+        for (int i = 0; i < standings.size(); i++) {
+            if (standings.get(i).getKey().equals(driver)) {
+                return i + 1;
+            }
+        }
+
+        return -1;
     }
 }
