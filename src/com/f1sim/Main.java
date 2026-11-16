@@ -141,14 +141,18 @@ public class Main {
         System.out.println("\n========== " + result.getRaceName() + " RESULTS ==========");
         System.out.println("Race date: " + result.getRaceDate());
         System.out.println("------------------------------------------------");
-        System.out.printf("%-4s %-16s %-22s %-12s%n", "Pos", "Driver", "Team", "Total time");
+        System.out.printf("%-4s %-16s %-22s %-12s %-50s%n", "Pos", "Driver", "Team", "Total time", "");
         int position = 1;
         for (var standing : result.getStandings()) {
-            System.out.printf("%-4d %-16s %-22s %-12s%n",
+            if (standing.driver().equals(selectedDriver)) {
+                System.out.printf("%-4d %-16s %-22s %-12s %-50s%n",
+                    position++, standing.driver().getName(), standing.driver().getTeam(),
+                    standing.totalTime(), " <-- Your driver");
+            }
+            else {
+                System.out.printf("%-4d %-16s %-22s %-12s%n",
                     position++, standing.driver().getName(), standing.driver().getTeam(),
                     standing.totalTime());
-            if (standing.driver().equals(selectedDriver)) {
-                System.out.println("     <-- Your driver");
             }
         }
         System.out.println("------------------------------------------------");
