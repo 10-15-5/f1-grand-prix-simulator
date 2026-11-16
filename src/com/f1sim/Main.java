@@ -6,7 +6,6 @@ import com.f1sim.models.Team;
 import com.f1sim.simulation.Championship;
 import com.f1sim.simulation.Race;
 import com.f1sim.simulation.RaceResult;
-import com.f1sim.simulation.RaceReport;
 import com.f1sim.simulation.RaceSetupException;
 import com.f1sim.simulation.RaceSimulator;
 
@@ -17,6 +16,19 @@ import java.util.Scanner;
 
 public class Main {
 
+    /**
+     * The main method for the F1 Grand Prix Simulator.
+     *
+     * Initialises the championship, creates the teams and drivers,
+     * allows the user to select a driver and tyre compound, and runs
+     * up to three Grand Prix races.
+     *
+     * After each race, the results and updated championship standings
+     * are displayed. User then can choose whether to continue racing.
+     *
+     * @param args
+     * @throws InterruptedException if the race simulation is interrupted
+     */
     public static void main(String[] args) throws InterruptedException {
         try (Scanner scanner = new Scanner(System.in)) {
             List<Team> teams = createTeams();
@@ -70,6 +82,15 @@ public class Main {
         }
     }
 
+    
+    /**
+     * Creates and initialises the five teams for the championship.
+     *
+     * Each team is assigned a car with set performance ratings and
+     * two drivers with their own names, car numbers and skill ratings.
+     *
+     * @return a list containing all five teams and their drivers
+     */
     private static List<Team> createTeams() {
         List<Team> teams = new ArrayList<>();
 
@@ -102,6 +123,16 @@ public class Main {
         return teams;
     }
 
+
+    /**
+     * Collects all drivers from the supplied teams into a single list.
+     *
+     * Iterates through each team and adds its drivers to the list,
+     * making it easier to access all championship drivers in one place.
+     *
+     * @param teams the list of teams participating in the championship
+     * @return a list containing all drivers from the supplied teams
+     */
     private static List<Driver> getAllDrivers(List<Team> teams) {
         List<Driver> drivers = new ArrayList<>();
         for (Team team : teams) {
@@ -110,6 +141,17 @@ public class Main {
         return drivers;
     }
 
+
+    /**
+     * Displays all available drivers and allows the user to select one.
+     *
+     * Each driver's name, team and car number are displayed.
+     * The user's selection is validated using the readNumber method.
+     *
+     * @param scanner the Scanner used to read user input
+     * @param drivers the list of available drivers
+     * @return the Driver object selected by the user
+     */
     private static Driver selectDriver(Scanner scanner, List<Driver> drivers) {
         System.out.println("\nAvailable drivers:");
         for (int i = 0; i < drivers.size(); i++) {
@@ -121,6 +163,20 @@ public class Main {
         return drivers.get(choice - 1);
     }
 
+
+    /**
+     * Reads and validates an integer entered by the user.
+     *
+     * Repeatedly aks the user until a valid integer within the
+     * range is entered. Any invalid input 
+     * causes the user to be prompted again.
+     *
+     * @param scanner the Scanner used to read user input
+     * @param prompt the message displayed when requesting input
+     * @param min the minimum permitted value
+     * @param max the maximum permitted value
+     * @return the validated integer entered by the user
+     */
     private static int readNumber(Scanner scanner, String prompt, int min, int max) {
         while (true) {
             System.out.print(prompt);
@@ -137,6 +193,17 @@ public class Main {
         }
     }
 
+
+    /**
+     * Displays the results of a completed Grand Prix.
+     *
+     * Prints the race name, date and final driver standings, including
+     * each driver's position, name, team and total race time.
+     * The user's selected driver is highlighted in the results.
+     *
+     * @param result the results of the completed race
+     * @param selectedDriver the driver selected by the user
+     */
     private static void printRaceResult(RaceResult result, Driver selectedDriver) {
         System.out.println("\n========== " + result.getRaceName() + " RESULTS ==========");
         System.out.println("Race date: " + result.getRaceDate());
